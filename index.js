@@ -16,6 +16,7 @@ const init = async () => {
     console.log(`[INFO] Subwoofer by Henry Hermann and Robert J. Kratz`);
     console.log(`[INFO] You found an error? https://link.rjks.us/support\n`);
     console.log(`[INFO] Date: ${new Date()}`);
+    console.log(`[INFO] Node Version: ${process.version}\n`);
 }
 
 init().then(() => {
@@ -23,6 +24,10 @@ init().then(() => {
         console.log(`[INFO] Webserver started on http://localhost:${config.PORT}`);
 
         //AUTO START OF THE DISCORD BOT
-        if(config.CONFIG.AUTOSTART) bot.start();
+        if(config.CONFIG.AUTOSTART) bot.start().then(() => {
+            console.log(`[BOT] Discord instance started`);
+        }).catch((err) => {
+            console.log(`[ERROR] Could not start discord instance: ${err}`);
+        });
     });
 });
