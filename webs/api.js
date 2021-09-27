@@ -23,7 +23,7 @@ router.get('/stop', (req, res) => {
 });
 
 router.get('/info', (req, res) => {
-    res.status(200).json({info: "info"});
+    res.status(200).json({message: "Informations about the current instance", status: 200, data: {online: bot.isRunning()}});
 });
 
 router.all('/*', (req, res) => res.status(404).json({message: "Page not found", status: 404}));
