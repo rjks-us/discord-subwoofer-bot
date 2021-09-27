@@ -1,7 +1,9 @@
 {
     "PORT": 8080,
     "TOKEN": "",
+    "APPLICATIONID": "558644400259858453",
     "CONFIG": {
-        "AUTOSTART": true
+        "AUTOSTART": true,
+        "DEVMODE": true
     }
 }
