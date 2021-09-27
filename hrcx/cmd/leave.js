@@ -20,6 +20,6 @@ module.exports = {
         track.endSession(interaction.guild.id);
         if(connection) connection.destroy();
 
-        return interaction.reply({content: ':outbox_tray: I have successfully disconnected to your voice channel!', ephemeral: true});
+        return interaction.reply({content: ':outbox_tray: I have successfully disconnected from your voice channel!', ephemeral: true});
 	},
 };
