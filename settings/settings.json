@@ -1,0 +1,7 @@
+{
+    "icon": "https://cdn.discordapp.com/app-icons/558644400259858453/2137e2aa104a1d0283027b499133eda6.png?size=512",
+    "invite": "https://link.rjks.us/notifier",
+    "variables": {
+        "timeout": 3
+    }
+}
