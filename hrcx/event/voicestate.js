@@ -1,6 +1,7 @@
 const voice = require('@discordjs/voice');
 
 const track = require('../track/trackmanager');
+const settings = require('../../settings/settings.json');
 
 module.exports = {
 	name: 'voiceStateUpdate',
@@ -20,12 +21,12 @@ module.exports = {
             setTimeout(() => {
                 oc.members.tap(collection => {
                     if(collection.size != 1) return;
+                    if(!vs) return
 
-                    //END SESSION
-                    track.endSession(oc.guild.id);
-                    if(vs) vs.destroy();
+                    vs.destroy();
+                    track.stop(oc.guild);
                 });
-            }, 1000*3);
+            }, 1000 * settings.variables.timeout);
         });
 	}
 };
