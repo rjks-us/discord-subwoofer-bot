@@ -3,7 +3,7 @@ const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 
 module.exports = {
     syntax: 'menu',
-    dev: false,
+    dev: true,
     data: new SlashCommandBuilder()
 		.setName('menu')
 		.setDescription('Shows you the current menu of the existing song tray'),

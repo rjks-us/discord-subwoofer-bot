@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     syntax: 'ping',
-    dev: false,
+    dev: true,
     data: new SlashCommandBuilder()
 		.setName('ping')
 		.setDescription('Health check of the bot'),

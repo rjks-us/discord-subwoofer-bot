@@ -17,21 +17,8 @@ module.exports = {
         const perm = vc.permissionsFor(interaction.client.user);
         if(!perm.has('CONNECT') || !perm.has('SPEAK')) return interaction.reply({content: ':name_badge: I do not have the permission to connect or speak in your channel.', ephemeral: true,});
 
-        var connection = voice.joinVoiceChannel({
-            channelId: vc.id,
-            guildId: vc.guild.id,
-            adapterCreator: vc.guild.voiceAdapterCreator,
-            selfDeaf: false,
-            selfMute: false
-        })
+        await track.join(vc.guild, vc);
 
-        track.startSession(interaction.client, interaction.guild, vc.id);
-
-        setTimeout(() => {
-            track.endSession(interaction.guild.id);
-            //connection.destroy();
-        }, 3000)
-
-        return interaction.reply({content: ':inbox_tray: I have successfully connected to your voice channel!', ephemeral: true,});
+        return interaction.reply({content: ':inbox_tray: I have successfully connected to your voice channel!', ephemeral: true});
 	},
 };
