@@ -1,5 +1,6 @@
 const voice = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
+
+const playYT = require('play-dl');
 
 const sessions = [];
 
@@ -49,15 +50,17 @@ const playResource = async (guild, track) => {
     let session = getConfig(guild).config;
 
     if(!track) {
-        console.log('[INFO] No songs in queue!');
         session.audio.stop();
+        session.playing = false;
         return;
     }
 
     let connection = voice.getVoiceConnection(guild.id);
 
-    let stream = await ytdl(track.url, {filter: "audioonly"});
-    let resource = voice.createAudioResource(stream, {inputType: voice.StreamType.Arbitrary, inlineVolume: true});
+    let stream = await playYT.stream(track.url);
+    //let stream = await ytdl(track.url, {filter: "audioonly"});
+    
+    let resource = voice.createAudioResource(stream.stream, {inputType: voice.StreamType.Arbitrary, inlineVolume: true});
 
     if(!getConfig(guild).config.audio) {
 
@@ -166,6 +169,7 @@ const quit = async (guild) => {
         } else {
             object.audio.stop();
             object.playing = false;
+            console.log('epmty');
         }
     } catch (error) {
         console.log(error);

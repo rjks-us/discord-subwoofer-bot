@@ -1,4 +1,4 @@
-const yts = require( 'yt-search' )
+const yt = require('youtube-search-without-api-key');
 
 /**
  * 
@@ -9,9 +9,10 @@ const yts = require( 'yt-search' )
 const search = async (query) => {
     return await new Promise(async (resolve, rejects) => {
         //catch youtube summon from search, prevent invalid searches, do not change
-        const result = await yts(query.replace('https://youtube.com/watch?v=', ''));
-        if(result.videos === null || result.videos.length == 0) return rejects('Invalid query search');
-        resolve(result.videos[0]);
+        const result = await yt.search(query.replace('https://youtube.com/watch?v=', ''));
+        if(result === null || result.length == 0) return rejects('Invalid query search');
+
+        resolve(result[0]);
     });
 }
 
@@ -24,10 +25,10 @@ const search = async (query) => {
  */
 const searchArray = async (query, amount) => {
     return await new Promise(async (resolve, rejects) => {
-        const result = await yts(query);
-        if(result.videos === null || result.videos.length == 0) return rejects('Invalid query search');
-        if(result.videos.length >= amount) return resolve(result.videos.slice(0, amount));
-        resolve(result.videos.slice(0, result.videos.length));
+        const result = await yt.search(query);
+        if(result === null || result.length == 0) return rejects('Invalid query search');
+        if(result.length >= amount) return resolve(result.slice(0, amount));
+        resolve(result.slice(0, result.length));
     });
 }
 
