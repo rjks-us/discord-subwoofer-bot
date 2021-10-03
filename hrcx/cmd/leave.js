@@ -17,6 +17,7 @@ module.exports = {
         if(!track.getConnection(vc.guild)) return interaction.reply({content: ':name_badge: I am not in a voice channel.', ephemeral: true});
 
         await track.quit(vc.guild);
+        track.stop(vc.guild);
 
         return interaction.reply({content: ':outbox_tray: I have successfully disconnected from your voice channel!', ephemeral: true});
     },
