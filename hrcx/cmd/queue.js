@@ -21,7 +21,7 @@ module.exports = {
 
       const embed = new MessageEmbed()
         .setColor('#0099ff')
-        .setTitle('Queue for your session')
+        .setTitle('Queue of your channel')
         .setTimestamp()
         .setThumbnail(url);
 
@@ -31,8 +31,8 @@ module.exports = {
           if(i == 1 && i <= 10) {
             url = element.thumbnail;
           };
-          embed.addField('`' + i + '.` ' + element.title + ' | `' + element.timestamp + '`' , 'From ' + element.author.name + ' published ' + element.ago + ' | ' + element.views + ' views', false);
-      });
+          embed.addField('`' + i + '.` ' + element.title + ' | `' + element.duration_raw + '`' , 'Published ' + element.snippet.publishedAt + ' | ' + element.views + ' views', false);
+        });
       embed.setFooter('You have ' + i + ' songs in the queue', url);
 
       await interaction.reply({ephemeral: true, embeds: [embed]});

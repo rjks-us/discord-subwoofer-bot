@@ -22,11 +22,11 @@ module.exports = {
 
 				track.play(interaction.guild, vc, vid, interaction, (result) => {
 					if(result.joined && result.playing) return interaction.reply({content: ':inbox_tray: I have successfully connected to your voice channel!\n' +
-						':musical_keyboard: Playing ``' + vid.title + '`` from ' + vid.author.name, ephemeral: true});
+						':musical_keyboard: Playing ``' + vid.title + '`` on **Youtube**', ephemeral: true});
 
-					if(result.addedToQueue) return interaction.reply({content: ':ladder: ``' + vid.title + '`` from ' + vid.author.name + ' was added to your song queue', ephemeral: true});
+					if(result.addedToQueue) return interaction.reply({content: ':ladder: ``' + vid.title + '`` was added to your song queue', ephemeral: true});
 					
-					if(result.playing) return interaction.reply({content: ':musical_keyboard: Playing ``' + vid.title + '`` from ' + vid.author.name, ephemeral: true});
+					if(result.playing) return interaction.reply({content: ':musical_keyboard: Playing ``' + vid.title + '`` on **Youtube**', ephemeral: true});
 				});
 				
 			}).catch((err) => {

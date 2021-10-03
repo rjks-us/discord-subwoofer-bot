@@ -29,12 +29,8 @@ module.exports = {
             vid.forEach(element => {
                 var btntype = 'PRIMARY'
                 i++;
-                //Catch first element
-                if(i==1) {
-                    url = element.thumbnail;
-                    btntype = 'SUCCESS';
-                };
-                embed.addField('`' + i + '.` ' + element.title + ' | `' + element.timestamp + '`' , 'From ' + element.author.name + ' published ' + element.ago + ' | ' + element.views + ' views', false);
+
+                embed.addField('`' + i + '.` ' + element.title + ' | `' + element.duration_raw + '`' , 'Published ' + element.snippet.publishedAt + ' | ' + element.views + ' views', false);
                 row.addComponents(new MessageButton().setCustomId('summon-song:' + element.url).setLabel(i + '.').setStyle(btntype));
             });
 
