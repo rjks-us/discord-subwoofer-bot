@@ -72,7 +72,7 @@ for (const file of eventFiles) {
     } else {
         client.on(event.name, (...args) => event.execute(...args));
     }
-    console.log(`[INFO] Loaded Command Handler ${file} successfully`);
+    //console.log(`[INFO] Loaded Command Handler ${file} successfully`);
 }
 
 /**
@@ -90,7 +90,7 @@ for(const file of commandFiles) {
     } else {
         client.commands.set(command.data.name, command);
     }
-    console.log(`[INFO] Loaded Command ${file} successfully`);
+    //console.log(`[INFO] Loaded Command ${file} successfully`);
 }
 
 for (const file of commandFiles) {
