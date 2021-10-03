@@ -13,6 +13,7 @@ const fs = require('fs')
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_VOICE_STATES] });
 
 var running = false;
+var startup = new Date();;
 
 const isRunning = () => {return running;}
 
@@ -101,5 +102,6 @@ module.exports = {
     start: start,
     stop: stop,
     client: client,
-    isRunning: isRunning
+    isRunning: isRunning,
+    startup: startup
 }
