@@ -1,46 +1,217 @@
+const voice = require('@discordjs/voice');
+const ytdl = require('ytdl-core');
+
 const sessions = [];
 
-const startSession = async (pClient, pGuild, pChannel, pConfig) => {
-    if(pGuild === undefined || pChannel === undefined) return;
+/**
+ * @description Creates a new session or continues the new one
+ * @param {Guild} guild 
+ * @param {Channel} channel 
+ * @param {JSON} track 
+ * @param {} interaction 
+ * @param {Function} callback 
+ * @async
+ * @returns Callback 
+ */
+const play = async (guild, channel, track, interaction, callback) => {
 
-    if(pConfig === undefined) pConfig = {queue:[], loop: false, shuffle: false}
+    //Already has connection and is playing
+    if(isPlaying(guild)) {
+        addTrack(guild, track);
+        try {callback({joined: false, playing: true, addedToQueue: true})} catch (error) {console.log(error);}
+        return;
+    }
 
-    sessions.push({
-        guild: pGuild,
-        config: pConfig
+    if(!getConnection(guild)) await join(guild, channel);
+
+    var config = {queue:[], audio: null, playing: false, loop: false, shuffle: false, volume: 0.5};
+
+    if(track) config.queue.push(track);
+
+    sessions.push({guild: guild, config: config});
+
+    if(config.queue.length > 0) {
+        await playResource(guild, config.queue[0]);
+    }
+
+    try {callback({joined: true, playing: true, addedToQueue: false})} catch (error) {console.log(error);}
+}
+
+/**
+ * @description Streams resource and pipes it to discord Audio Player
+ * @param {Guild} guild 
+ * @param {JSON} track 
+ * @async
+ * @returns void
+ */
+const playResource = async (guild, track) => {
+    
+    let session = getConfig(guild).config;
+
+    if(!track) {
+        console.log('[INFO] No songs in queue!');
+        session.audio.stop();
+        return;
+    }
+
+    let connection = voice.getVoiceConnection(guild.id);
+
+    let stream = await ytdl(track.url, {filter: "audioonly"});
+    let resource = voice.createAudioResource(stream, {inputType: voice.StreamType.Arbitrary, inlineVolume: true});
+
+    if(!getConfig(guild).config.audio) {
+
+        session.audio = voice.createAudioPlayer({
+            behaviors: {
+                noSubscriber: voice.NoSubscriberBehavior.Pause,
+            },
+        });
+
+        let audioPlayer = session.audio;
+
+        await connection.subscribe(session.audio);
+        
+        audioPlayer.on('error', (error) => {
+            console.log(error);
+            stop(guild);
+        })
+    
+        audioPlayer.on(voice.AudioPlayerStatus.Idle, () => {
+            //Passes over to queue handler
+            next(guild);
+        });
+    
+        audioPlayer.on(voice.AudioPlayerStatus.Paused, () => {
+            session.playing = false;
+        });
+    
+        audioPlayer.on(voice.AudioPlayerStatus.AutoPaused, () => {
+            session.playing = false;
+        });
+    
+        audioPlayer.on(voice.AudioPlayerStatus.Buffering, () => {
+            session.playing = false;
+        });
+    
+        audioPlayer.on(voice.AudioPlayerStatus.Playing, () => {
+            session.playing = true;
+        });
+    }
+
+    //Triggers the next song
+    session.playing = true;
+    session.audio.play(resource);
+}
+
+/**
+ * @description Connects to voice channel
+ * @param {Guild} guild 
+ * @param {Channel} channel 
+ * @async
+ * @returns Connection
+ */
+const join = async (guild, channel) => {
+    var connection = voice.joinVoiceChannel({
+        channelId: channel.id,
+        guildId: guild.id,
+        adapterCreator: guild.voiceAdapterCreator,
+        selfDeaf: false,
+        selfMute: false
     });
+    return connection;
 }
 
-const findSession = async (guild) => {
-
+/**
+ * @description Disconnects to voice channel
+ * @param {Guild} guild
+ * @async
+ * @returns void
+ */
+const quit = async (guild) => {
+    if(getConnection(guild)) (await getConnection(guild)).destroy();
 }
 
-const endSession = async (guild) => {
+/**
+ * @description Ends the current session on the server
+ * @param {Guild} guild
+ * @async
+ * @returns void
+ */
+ const stop = async (guild) => {
+    var config = getConfig(guild);
+    if(config) config.config.audio.stop();
+    
+    //delete from session list
+    for (let i = 0; i < sessions.length; i++) {
+        if(sessions[i] === config) {
+            sessions[i] = undefined;
+        }
+    }
+}
 
+/**
+ * @description Triggers the next song
+ * @param {Guild} guild
+ * @async
+ * @returns void
+ */
+ const next = async (guild) => {
+    try {
+        var object = getConfig(guild).config;
+
+        if(!object.loop) object.queue.shift();
+
+        if(hasNext(guild)) {
+            playResource(guild, getConfig(guild).config.queue[0]);
+        } else {
+            object.audio.stop();
+            object.playing = false;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getConnection = (guild) => {
+    return voice.getVoiceConnection(guild.id);
+}
+
+const hasNext = async (guild) => {
+    var session = sessions.find(s => s.guild.id == guild.id);
+    if(!session) return false;
+    return (session.config.queue.length > 0);
+}
+
+const getConfig = (guild) => {
+    return sessions.find(s => s.guild.id == guild.id);
+}
+
+const isPlaying = (guild) => {
+    var session = sessions.find(s => s.guild.id == guild.id);
+    if(!session) return false;
+    return session.config.playing;
 }
 
 const addTrack = (guild, track) => {
-    return new Promise(async (resolve, rejects) => {
-        var session = await findSession(guild);
-        if(!sessions) rejects('Could not find a session on this guild');
-    
-        sessions.find(elm => elm.guild === guild).config.queue.push(track);
-        resolve();
-    });
+    var config = getConfig(guild);
+    if(config) config.config.queue.push(track);
 }
 
-const clearTracks = (guild, track) => {
-    return new Promise(async (resolve, rejects) => {
-        var session = await findSession(guild);
-        if(!sessions) rejects('Could not find a session on this guild');
-    
-        sessions.find(elm => elm.guild === guild).config.queue = []
-        resolve();
-    });
+const clearTracks = async (guild) => {
+    var config = getConfig(guild);
+    if(config) config.config.queue = []
 }
 
 module.exports = {
-    startSession: startSession,
-    findSession: findSession,
-    endSession: endSession
+    play: play,
+    join: join,
+    quit: quit,
+    next: next,
+    stop: stop,
+    hasNext: hasNext,
+    getConnection: getConnection,
+    addTrack: addTrack,
+    getConfig: getConfig,
+    isPlaying: isPlaying,
+    clearTracks: clearTracks
 }
