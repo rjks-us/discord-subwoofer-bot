@@ -1,5 +1,3 @@
 # discord-subwoofer-bot
 
-## Getting started
-
-## Looking around
+Join our discord to enjoy the full bot experience: https://link.rjks.us
